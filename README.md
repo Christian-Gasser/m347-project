@@ -1,6 +1,6 @@
 # BBW/BMS Grades Management App
 
-A modern web application for managing and analyzing grades for BBW (Berufsbildungszentrum) and BMS (Berufsmaturitätsschule) students.
+A modern web application for managing and analyzing grades for BBW and BMS students.
 
 ## 📋 Project Overview
 
@@ -27,7 +27,7 @@ This application allows students to systematically record, manage, and analyze t
 
 | Role | Name | Responsibilities |
 |------|------|-----------------|
-| **Project Lead** | [Name] | Project coordination, architecture decisions |
+| **Project Lead** | [Christian-Gasser G. & AdminGodZ] | Project coordination, architecture decisions |
 | **Frontend Developer** | [Name] | React application, UI/UX, Frontend Docker |
 | **Backend Developer** | [Name] | Spring Boot API, database integration |
 | **DevOps Engineer** | [Name] | CI/CD pipeline, Docker Compose, infrastructure |
