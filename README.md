@@ -1,4 +1,4 @@
-# BBW/BMS Grades Management App
+# M347 Grades Management App
 
 A modern web application for managing and analyzing grades for BBW and BMS students.
 
@@ -9,29 +9,19 @@ This application allows students to systematically record, manage, and analyze t
 ### Data Model (DTO)
 - **Subject**: Name of the subject/module
 - **Grade**: Achieved score/grade (1.0 - 6.0)
-- **Date**: Exam date or entry date
+- **Date**: Exam date
 
 ## 🏗️ Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Frontend      │    │    Backend      │    │   Database      │
-│   (React/Vite)  │◄──►│  (Spring Boot)  │◄──►│ (PostgreSQL/    │
-│   Port: 80      │    │   Port: 8080    │    │  MariaDB)       │
-│                 │    │                 │    │  Port: 3306/    │
-└─────────────────┘    └─────────────────┘    │  5432)          │
-                                              └─────────────────┘
+│   Frontend      │    │    Backend      │    │    Database     │
+│   (React/Vite)  │◄──►│  (Spring Boot)  │◄──►│  (PostgreSQL)   │
+│   Port: 3000    │    │   Port: 8080    │    │   Port: 5432    │
+│                 │    │                 │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-## 👥 Project Team & Responsibilities
-
-| Role | Name | Responsibilities |
-|------|------|-----------------|
-| **Project Lead** | [Christian-Gasser G. & AdminGodZ] | Project coordination, architecture decisions |
-| **Frontend Developer** | [Name] | React application, UI/UX, Frontend Docker |
-| **Backend Developer** | [Name] | Spring Boot API, database integration |
-| **DevOps Engineer** | [Name] | CI/CD pipeline, Docker Compose, infrastructure |
-| **QA Engineer** | [Name] | E2E tests, testing strategy |
 
 ## 🚀 Quick Start
 
@@ -59,7 +49,7 @@ This application allows students to systematically record, manage, and analyze t
    ```
 
 4. **Access the application**
-   - Frontend: http://localhost:80
+   - Frontend: http://localhost:3000
    - Backend API: http://localhost:8080
    - Health Check: http://localhost:8080/actuator/health
 
@@ -110,32 +100,64 @@ bbw-bms-grades-app/
 ### Backend
 - **Framework**: Spring Boot 3.x
 - **Build Tool**: Gradle
-- **Database**: JPA/Hibernate with PostgreSQL/MariaDB
+- **Database**: JPA with PostgreSQL
 - **Health Monitoring**: Spring Actuator
 - **API**: RESTful endpoints for CRUD operations
 
 ### API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/grades` | Retrieve all grades |
-| GET | `/api/grades/{id}` | Retrieve single grade |
-| POST | `/api/grades` | Create new grade |
-| PUT | `/api/grades/{id}` | Update grade |
-| DELETE | `/api/grades/{id}` | Delete grade |
-| GET | `/api/grades/statistics` | Grade statistics |
+| Method | Endpoint | Description | Return Body | 2xx Status Code |
+|--------|----------|-------------|--------------|-----------------|
+| GET | `/api/spaces` | Retrieve all spaces | Array of Objects (Space) | 200 OK |
+| GET | `/api/spaces/{spaceId}` | Retrieve a single space by Id| Object (Space) | 200 OK |
+| POST | `/api/spaces` | Create a new space | Object (Space) | 201 Created |
+| PUT | `/api/spaces/{spaceId}` | Update a space | Object (Space) | 200 OK |
+| DELETE | `/api/spaces/{spaceId}` | Delete a space | - | 200 OK |
+| GET | `/api/spaces/{spaceId}/semesters` | Retrieve all semesters from one space | Array of Objects (Space) | 200 OK |
+| GET | `/api/spaces/{spaceId}/semesters/{semesterId}` | Retrieve a single semester by Id| Object (Space) | 200 OK |
+| POST | `/api/spaces/{spaceId}/semesters` | Create a new semester in a space | Object (Space) | 201 Created |
+| PUT | `/api/spaces/{spaceId}/semesters/{semesterId}` | Update a semester of a space | Object (Space) | 200 OK |
+| DELETE | `/api/spaces/{spaceId}/semesters/{semesterId}` | Delete a semester of a space | - | 200 OK |
+| GET | `/api/spaces/{spaceId}/semesters/{semesterId}/subjects` | Retrieve all subjects from one semester | Array of Objects (Subject) | 200 OK |
+| GET | `/api/spaces/{spaceId}/semesters/{semesterId}/subjects/{subjectId}` | Retrieve a single subject of a semester by Id  | Object (Subject) | 200 OK |
+| POST | `/api/spaces/{spaceId}/semesters/{semesterId}/subjects` | Create a new subject in a semester | Object (Subject) | 201 Created |
+| PUT | `/api/spaces/{spaceId}/semesters/{semesterId}/subjects/{subjectId}` | Update a subject of a semester | Object (Subject) | 200 OK |
+| DELETE | `/api/spaces/{spaceId}/semesters/{semesterId}/subjects/{subjectId}` | Delete a subject of a semester | - | 200 OK |
+| GET | `/api/spaces/{spaceId}/semesters/{semesterId}/subjects/{subjectId}/grades` | Retrieve all grade of a subject | Array of Objects (grade) | 200 OK |
+| GET | `/api/spaces/{spaceId}/semesters/{semesterId}/subjects/{subjectId}/grades/{gradeId}` | Retrieve a single grade of a subject by Id | Object (grade) | 200 OK |
+| POST | `/api/spaces/{spaceId}/semesters/{semesterId}/subjects/{subjectId}/grades` | Create a new grade in a subject | Object (grade) | 201 Created |
+| PUT | `/api/spaces/{spaceId}/semesters/{semesterId}/subjects/{subjectId}/grades/{gradeId}` | Update a grade of a subject | Object (grade) | 200 OK |
+| DELETE | `/api/spaces/{spaceId}/semesters/{semesterId}/subjects/{subjectId}/grades/{gradeId}` | Delete a grade of a subject | - | 200 OK |
+
+
 
 ### Database
-- **Engine**: PostgreSQL 15 or MariaDB 10.9
+- **Engine**: PostgreSQL 15
 - **Initialization**: Automatic schema setup on container start
 - **Volumes**: Persistent data storage
 - **User Management**: Separate database users for the application
+
+### Entity Relation Diagram (ERD)
+```
+┌─────────────────┐       ┌─────────────────┐       ┌─────────────────┐       ┌─────────────────────┐
+│ Space           │       │ Semester        │       │ Subject         │       │ Grade               │
+│-----------------│1     m│-----------------│1     m│-----------------│1     m│---------------------│
+│ id: int         │◄─────►│ id: int         │◄─────►│ id: int         │◄─────►│ id: int             │
+│ name: String    │       │ name: String    │       │ name: String    │       │ name: String        │
+│                 │       │ spaceId: int    │       │ semesterId: int │       │ examDate: Date      │
+└─────────────────┘       │                 │       │                 │       │ gradeWeight: double │
+                          └─────────────────┘       └─────────────────┘       │ grade: double       │
+                                                                              │ subjectId: int      │
+                                                                              │                     │
+                                                                              └─────────────────────┘
+```
+
 
 ### Docker Setup
 All services use multi-stage builds:
 - **Frontend**: nginx-alpine without node_modules
 - **Backend**: openjdk:17-alpine without Gradle cache
-- **Database**: Official PostgreSQL/MariaDB images
+- **Database**: Official PostgreSQL image
 
 ## 🔍 Testing
 
@@ -145,7 +167,6 @@ Complete CRUD test suite runs automatically in CI pipeline:
 - Edit grade
 - View grade
 - Delete grade
-- Retrieve statistics
 
 ### Run local tests
 ```bash
@@ -233,13 +254,6 @@ cd frontend && npm run dev
 docker-compose up database
 ```
 
-## 📋 TODO / Roadmap
-
-- [ ] Extended grade analysis (averages, trends)
-- [ ] Export functionality (PDF, Excel)
-- [ ] User authentication
-- [ ] Multi-semester support
-- [ ] Mobile app
 
 ## 🤝 Contributing
 
@@ -258,8 +272,5 @@ This project is developed for educational purposes and is under [MIT License](LI
 For questions or issues:
 - Create GitHub issues
 - Contact team lead
-- Check documentation in `/docs` directory
 
 ---
-
-**Developed for BBW/BMS Students** 🎓
