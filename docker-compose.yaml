@@ -1,0 +1,13 @@
+version: '3.8'
+
+services: 
+    database:
+        image: postgresql:latest
+        ports:
+            - 5432:5432
+        volumes:
+            - ./db_data:/var/lib/postgresql
+        environment:
+            POSTGRES_PASSWORD: root
+            POSTGRES_USER: root
+            POSTGRES_DB: m347-grades-management
