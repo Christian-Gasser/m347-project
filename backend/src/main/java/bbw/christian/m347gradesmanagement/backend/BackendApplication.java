@@ -1,13 +1,13 @@
-package bbw.christianm347gradesmanagement.be;
+package bbw.christian.m347gradesmanagement.backend;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BeApplication {
+public class BackendApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(BeApplication.class, args);
+        SpringApplication.run(BackendApplication.class, args);
     }
 
 }
