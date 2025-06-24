@@ -11,6 +11,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
+@CrossOrigin("*")
 @RestController
 @RequestMapping("/api/spaces/{spaceId}/semesters/{semesterId}/subjects")
 public class SubjectController {
