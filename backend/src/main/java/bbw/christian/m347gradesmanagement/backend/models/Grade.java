@@ -1,5 +1,6 @@
 package bbw.christian.m347gradesmanagement.backend.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -25,6 +26,7 @@ public class Grade {
     @Column(nullable = false)
     private double grade;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "subject_id", nullable = false)
     private Subject subject;

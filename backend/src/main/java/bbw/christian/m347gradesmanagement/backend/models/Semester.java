@@ -21,6 +21,7 @@ public class Semester {
     @OneToMany(mappedBy = "semester", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Subject> subjects;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "space_id", nullable = false)
     private Space space;
