@@ -1,0 +1,58 @@
+/* Global Styles */
+:root {
+    --light-text: #101218;
+    --light-bg: #cdcdcd;
+    --dark-text: #e8eaed;
+    --dark-bg: #101218;
+    --dark-panel: rgba(22, 28, 36, 0.7);
+    --light-panel: rgba(255, 255, 255, 0.15);
+    --bad-color: #ea4335;
+    --ok-color: #9aa0a6;
+    --good-color: #34a853;
+    --perfect-color: #fbbc05;
+    --light-glass-bg: rgba(255, 255, 255, 0.15);
+    --dark-glass-bg: rgba(22, 28, 36, 0.6);
+    --light-glass-border: rgba(255, 255, 255, 0.25);
+    --dark-glass-border: rgba(59, 130, 246, 0.2);
+    --light-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    --dark-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: var(--transition);
+}
+
+body {
+    min-height: 100vh;
+    background-attachment: fixed;
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    overflow-x: hidden;
+}
+
+.light-mode {
+    color: var(--light-text);
+    background: linear-gradient(45deg, var(--light-bg), #e0e0e0, #f5f5f5, #e0e0e0);
+}
+
+.dark-mode {
+    color: var(--dark-text);
+    background: linear-gradient(45deg, var(--dark-bg), #141922, #1a202c, #141922);
+}
+
+ @keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
