@@ -9,7 +9,9 @@ services:
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
             POSTGRES_USER: ${POSTGRES_USER}
             POSTGRES_DB: m347_grades_management
-<<<<<<< feature/add-backend
+        healthcheck:
+            test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
+            interval: 10s
     backend:
         build:
             context: ./backend
@@ -24,12 +26,4 @@ services:
             SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
         healthcheck:
             test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-            interval: 1m
-            timeout: 10s
-            retries: 3
-            start_period: 10s
-=======
-        healthcheck:
-            test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
-            interval: 10s
->>>>>>> main
+            interval: 30s
