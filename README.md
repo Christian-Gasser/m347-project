@@ -89,7 +89,7 @@ bbw-bms-grades-app/
 ## 🔧 Technical Details
 
 ### Frontend
-- **Framework**: React 18 with Vite
+- **Framework**: React 19 with Vite
 - **UI Library**: Material-UI (MUI)
 - **Build**: Multi-stage Docker build with nginx
 - **Features**: 
@@ -132,7 +132,7 @@ bbw-bms-grades-app/
 
 
 ### Database
-- **Engine**: PostgreSQL 15
+- **Engine**: PostgreSQL
 - **Initialization**: Automatic schema setup on container start
 - **Volumes**: Persistent data storage
 - **User Management**: Separate database users for the application
