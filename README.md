@@ -156,7 +156,7 @@ bbw-bms-grades-app/
 ### Docker Setup
 All services use multi-stage builds:
 - **Frontend**: nginx-alpine without node_modules
-- **Backend**: openjdk:17-alpine without Gradle cache
+- **Backend**: openjdk:23-alpine without Gradle cache
 - **Database**: Official PostgreSQL image
 
 ## 🔍 Testing
