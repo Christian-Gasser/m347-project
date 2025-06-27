@@ -323,9 +323,10 @@ export const RadarChart = ({ data, title, color = '#8B5CF6' }) => {
 
   return (
     <Box sx={{ 
-      p: 4,
+      p: 2,
       minHeight: '360px',
-      minWidth: '320px',
+      width: '440px',
+      marginRight: '-10%',
       borderRadius: '24px',
       background: theme.palette.mode === 'dark'
         ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%)'

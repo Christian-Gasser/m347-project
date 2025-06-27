@@ -28,10 +28,8 @@ import {
   useTheme,
   Avatar,
   alpha,
-  Grow,
-  Fade,
-  Slide,
 } from '@mui/material';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import {
   Add as AddIcon,
   Edit as EditIcon,
@@ -50,7 +48,7 @@ import {
 } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import ApiService from '../services/api';
-import { LineChart, DonutChart, BarChart, RadarChart } from './charts/GradeChart';
+import { LineChart, BarChart, RadarChart } from './charts/GradeChart';
 import { AnimatedStatCard, GradeInsightCard } from './charts/StatCard';
 import { 
   calculateGPA, 
@@ -58,8 +56,119 @@ import {
   generateTimeSeriesData, 
   generateInsights,
   getPerformanceMetrics,
-  predictNextGrade 
+  calculateGradeGoals 
 } from '../utils/gradeAnalytics';
+
+// Framer Motion animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      delayChildren: 0.2,
+      staggerChildren: 0.1,
+      duration: 0.6,
+      ease: [0.25, 0.46, 0.45, 0.94]
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { 
+    opacity: 0, 
+    y: 50,
+    scale: 0.95
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: "spring",
+      stiffness: 100,
+      damping: 12,
+      mass: 0.8
+    }
+  }
+};
+
+const slideFromLeft = {
+  hidden: { 
+    opacity: 0, 
+    x: -100,
+    rotateY: -15
+  },
+  visible: {
+    opacity: 1,
+    x: 0,
+    rotateY: 0,
+    transition: {
+      type: "spring",
+      stiffness: 120,
+      damping: 20,
+      duration: 0.8
+    }
+  }
+};
+
+const slideFromRight = {
+  hidden: { 
+    opacity: 0, 
+    x: 100,
+    rotateY: 15
+  },
+  visible: {
+    opacity: 1,
+    x: 0,
+    rotateY: 0,
+    transition: {
+      type: "spring",
+      stiffness: 120,
+      damping: 20,
+      duration: 0.8
+    }
+  }
+};
+
+const scaleUp = {
+  hidden: { 
+    opacity: 0, 
+    scale: 0.8,
+    rotateX: 10
+  },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    rotateX: 0,
+    transition: {
+      type: "spring",
+      stiffness: 200,
+      damping: 25,
+      duration: 0.6
+    }
+  }
+};
+
+const hoverEffects = {
+  hover: {
+    scale: 1.02,
+    y: -8,
+    boxShadow: "0 20px 40px rgba(0,0,0,0.15)",
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 10
+    }
+  },
+  tap: {
+    scale: 0.98,
+    transition: {
+      type: "spring",
+      stiffness: 400,
+      damping: 25
+    }
+  }
+};
 
 export default function SubjectDetail() {
   const { spaceId, semesterId, subjectId } = useParams();
@@ -83,9 +192,8 @@ export default function SubjectDetail() {
     metrics: {},
     insights: [],
     timeSeriesData: [],
-    prediction: null,
+    gradeGoals: [],
   });
-  const [dashboardVisible, setDashboardVisible] = useState(false);
   const navigate = useNavigate();
   const theme = useTheme();
 
@@ -113,7 +221,7 @@ export default function SubjectDetail() {
       const metrics = getPerformanceMetrics(gradesData);
       const insights = generateInsights(gradesData, gpa, trend);
       const timeSeriesData = generateTimeSeriesData(gradesData);
-      const prediction = predictNextGrade(gradesData);
+      const gradeGoals = calculateGradeGoals(gradesData);
       
       setAnalytics({
         gpa,
@@ -121,13 +229,10 @@ export default function SubjectDetail() {
         metrics,
         insights,
         timeSeriesData,
-        prediction,
+        gradeGoals,
       });
       
       setError(null);
-      
-      // Trigger dashboard animation
-      setTimeout(() => setDashboardVisible(true), 300);
     } catch (err) {
       setError('Failed to load data');
       console.error('Error loading data:', err);
@@ -513,52 +618,84 @@ export default function SubjectDetail() {
           </Box>
         </Fade>
       ) : (
-        <Fade in={dashboardVisible} timeout={600}>
-          <Box>
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
             {/* Analytics Dashboard - Full Width */}
             <Box sx={{ mb: 4 }}>
               <Grid container spacing={3}>
                 {/* Key Metrics Row */}
                 <Grid item xs={12} sm={6} md={3}>
-                  <AnimatedStatCard
-                    title="Current GPA"
-                    value={analytics.gpa}
-                    maxValue={6}
-                    icon={SpeedIcon}
-                    color="#3B82F6"
-                    trend={analytics.trend}
-                    delay={100}
-                  />
+                  <motion.div
+                    variants={itemVariants}
+                    whileHover={hoverEffects.hover}
+                    whileTap={hoverEffects.tap}
+                    custom={0}
+                  >
+                    <AnimatedStatCard
+                      title="Current GPA"
+                      value={analytics.gpa}
+                      maxValue={6}
+                      icon={SpeedIcon}
+                      color="#3B82F6"
+                      trend={analytics.trend}
+                      delay={0}
+                    />
+                  </motion.div>
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
-                  <AnimatedStatCard
-                    title="Best Grade"
-                    value={analytics.metrics.bestGrade || 0}
-                    maxValue={6}
-                    icon={TrophyIcon}
-                    color="#10B981"
-                    delay={200}
-                  />
+                  <motion.div
+                    variants={itemVariants}
+                    whileHover={hoverEffects.hover}
+                    whileTap={hoverEffects.tap}
+                    custom={1}
+                  >
+                    <AnimatedStatCard
+                      title="Best Grade"
+                      value={analytics.metrics.bestGrade || 0}
+                      maxValue={6}
+                      icon={TrophyIcon}
+                      color="#10B981"
+                      delay={0}
+                    />
+                  </motion.div>
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
-                  <AnimatedStatCard
-                    title="Consistency"
-                    value={analytics.metrics.consistency || 0}
-                    maxValue={100}
-                    suffix="%"
-                    icon={TargetIcon}
-                    color="#F59E0B"
-                    delay={300}
-                  />
+                  <motion.div
+                    variants={itemVariants}
+                    whileHover={hoverEffects.hover}
+                    whileTap={hoverEffects.tap}
+                    custom={2}
+                  >
+                    <AnimatedStatCard
+                      title="Consistency"
+                      value={analytics.metrics.consistency || 0}
+                      maxValue={100}
+                      suffix="%"
+                      icon={TargetIcon}
+                      color="#F59E0B"
+                      delay={0}
+                    />
+                  </motion.div>
                 </Grid>
                 <Grid item xs={12} sm={6} md={3}>
-                  <AnimatedStatCard
-                    title="Total Grades"
-                    value={analytics.metrics.totalGrades || 0}
-                    icon={BarChartIcon}
-                    color="#8B5CF6"
-                    delay={400}
-                  />
+                  <motion.div
+                    variants={itemVariants}
+                    whileHover={hoverEffects.hover}
+                    whileTap={hoverEffects.tap}
+                    custom={3}
+                  >
+                    <AnimatedStatCard
+                      title="Total Grades"
+                      value={analytics.metrics.totalGrades || 0}
+                      maxValue={20}
+                      icon={BarChartIcon}
+                      color="#8B5CF6"
+                      delay={0}
+                    />
+                  </motion.div>
                 </Grid>
               </Grid>
             </Box>
@@ -567,51 +704,89 @@ export default function SubjectDetail() {
             <Box sx={{ mb: 6 }}>
               <Grid container spacing={3}>
                 <Grid item xs={12} md={4}>
-                  <Grow in={dashboardVisible} timeout={800}>
-                    <Box>
-                      <Box sx={{ minHeight: '280px' }}>
-                        <DonutChart
-                          value={analytics.gpa}
-                          maxValue={6}
-                          title="Current GPA"
-                          color="#3B82F6"
-                        />
-                      </Box>
+                  <motion.div
+                    variants={scaleUp}
+                  >
+                    <Box sx={{ 
+                      minHeight: '320px',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        '& > div': {
+                          boxShadow: theme.palette.mode === 'dark'
+                            ? '0 12px 32px rgba(139, 92, 246, 0.15)'
+                            : '0 12px 32px rgba(139, 92, 246, 0.1)',
+                        }
+                      }
+                    }}>
+                      <RadarChart
+                        data={[
+                          { label: 'Consistency', value: analytics.metrics.consistency || 0 },
+                          { label: 'Average', value: (analytics.gpa / 6) * 100 },
+                          { label: 'Trend', value: Math.max(0, Math.min(100, 50 + (analytics.trend * 2))) },
+                          { label: 'Experience', value: Math.min(100, grades.length * 5) },
+                          { label: 'Best Grade', value: (analytics.metrics.bestGrade / 6) * 100 || 0 },
+                        ]}
+                        title="Performance Radar"
+                        color="#8B5CF6"
+                      />
                     </Box>
-                  </Grow>
+                  </motion.div>
                 </Grid>
                 <Grid item xs={12} md={4}>
-                  <Grow in={dashboardVisible} timeout={1000}>
-                    <Box>
-                      <Box sx={{ minHeight: '280px' }}>
-                        {analytics.timeSeriesData.length > 0 && (
-                          <LineChart
-                            data={analytics.timeSeriesData}
-                            title="Grade Progression"
-                            color="#10B981"
-                          />
-                        )}
-                      </Box>
+                  <motion.div
+                    variants={itemVariants}
+                  >
+                    <Box sx={{ 
+                      minHeight: '280px',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        '& > div': {
+                          boxShadow: theme.palette.mode === 'dark'
+                            ? '0 12px 32px rgba(16, 185, 129, 0.15)'
+                            : '0 12px 32px rgba(16, 185, 129, 0.1)',
+                        }
+                      }
+                    }}>
+                      {analytics.timeSeriesData.length > 0 && (
+                        <LineChart
+                          data={analytics.timeSeriesData}
+                          title="Grade Progression"
+                          color="#10B981"
+                        />
+                      )}
                     </Box>
-                  </Grow>
+                  </motion.div>
                 </Grid>
                 <Grid item xs={12} md={4}>
-                  <Grow in={dashboardVisible} timeout={1200}>
-                    <Box>
-                      <Box sx={{ minHeight: '280px' }}>
-                        <BarChart
-                          data={[
-                            { label: 'Excellent', value: grades.filter(g => g.grade >= 5.5).length },
-                            { label: 'Good', value: grades.filter(g => g.grade >= 4.5 && g.grade < 5.5).length },
-                            { label: 'Average', value: grades.filter(g => g.grade >= 3.5 && g.grade < 4.5).length },
-                            { label: 'Poor', value: grades.filter(g => g.grade < 3.5).length },
-                          ]}
-                          title="Grade Distribution"
-                          color="#F59E0B"
-                        />
-                      </Box>
+                  <motion.div
+                    variants={slideFromRight}
+                  >
+                    <Box sx={{ 
+                      minHeight: '280px',
+                      transition: 'all 0.3s ease',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        '& > div': {
+                          boxShadow: theme.palette.mode === 'dark'
+                            ? '0 12px 32px rgba(245, 158, 11, 0.15)'
+                            : '0 12px 32px rgba(245, 158, 11, 0.1)',
+                        }
+                      }
+                    }}>
+                      <BarChart
+                        data={[
+                          { label: 'Excellent', value: grades.filter(g => g.grade >= 5.5).length },
+                          { label: 'Good', value: grades.filter(g => g.grade >= 4.5 && g.grade < 5.5).length },
+                          { label: 'Average', value: grades.filter(g => g.grade >= 3.5 && g.grade < 4.5).length },
+                          { label: 'Poor', value: grades.filter(g => g.grade < 3.5).length },
+                        ]}
+                        title="Grade Distribution"
+                        color="#F59E0B"
+                      />
                     </Box>
-                  </Grow>
+                  </motion.div>
                 </Grid>
               </Grid>
             </Box>
@@ -619,126 +794,166 @@ export default function SubjectDetail() {
             {/* Advanced Analytics Row - Full Width */}
             <Box sx={{ mb: 6 }}>
               <Grid container spacing={3}>
-                <Grid item xs={12} md={4}>
-                  <Slide direction="right" in={dashboardVisible} timeout={1200}>
-                    <Box>
-                      <Box sx={{ minHeight: '320px' }}>
-                        <GradeInsightCard insights={analytics.insights} delay={600} />
+                <Grid item xs={12} md={6}>
+                  <motion.div
+                    variants={slideFromLeft}
+                  >
+                    <Box sx={{ height: '100%' }}>
+                      <Box sx={{ minHeight: '380px', height: '100%' }}>
+                        <GradeInsightCard insights={analytics.insights} delay={0} />
                       </Box>
                     </Box>
-                  </Slide>
+                  </motion.div>
                 </Grid>
-                <Grid item xs={12} md={4}>
-                  <Grow in={dashboardVisible} timeout={1400}>
-                    <Box>
-                      <Box sx={{ minHeight: '320px' }}>
-                        <RadarChart
-                          data={[
-                            { label: 'Consistency', value: analytics.metrics.consistency || 0 },
-                            { label: 'Average', value: (analytics.gpa / 6) * 100 },
-                            { label: 'Trend', value: Math.max(0, Math.min(100, 50 + (analytics.trend * 2))) },
-                            { label: 'Experience', value: Math.min(100, grades.length * 5) },
-                            { label: 'Best Grade', value: (analytics.metrics.bestGrade / 6) * 100 || 0 },
-                          ]}
-                          title="Performance Radar"
-                          color="#8B5CF6"
-                        />
-                      </Box>
-                    </Box>
-                  </Grow>
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <Slide direction="left" in={dashboardVisible} timeout={1600}>
-                    <Box>
-                      {analytics.prediction && (
-                        <Box sx={{
-                          p: 4,
-                          borderRadius: '24px',
-                          background: theme.palette.mode === 'dark'
-                            ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)'
-                            : 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%)',
-                          backdropFilter: 'blur(20px)',
-                          border: `1px solid ${alpha('#8B5CF6', 0.2)}`,
-                          position: 'relative',
-                          overflow: 'hidden',
-                          minHeight: '320px',
-                          '&::before': {
-                            content: '""',
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            height: '3px',
-                            background: 'linear-gradient(90deg, #8B5CF6, #A855F7)',
-                            opacity: 0.6,
-                          },
-                        }}>
+                <Grid item xs={12} md={6}>
+                  <motion.div
+                    variants={slideFromRight}
+                  >
+                    <Box sx={{ height: '100%' }}>
+                      <Box sx={{
+                        p: 4,
+                        borderRadius: '24px',
+                        background: theme.palette.mode === 'dark'
+                          ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(34, 197, 94, 0.1) 100%)'
+                          : 'linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(34, 197, 94, 0.05) 100%)',
+                        backdropFilter: 'blur(20px)',
+                        border: `1px solid ${alpha('#10B981', 0.2)}`,
+                        position: 'relative',
+                        overflow: 'hidden',
+                        minHeight: '380px',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        width: '113%',
+                        marginRight: '10%',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          border: `1px solid ${alpha('#10B981', 0.3)}`,
+                          boxShadow: theme.palette.mode === 'dark'
+                            ? '0 8px 32px rgba(16, 185, 129, 0.15)'
+                            : '0 8px 32px rgba(16, 185, 129, 0.08)',
+                        },
+                        '&::before': {
+                          content: '""',
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          height: '3px',
+                          background: 'linear-gradient(90deg, #10B981, #22C55E)',
+                          opacity: 0.6,
+                        },
+                      }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                           <Box sx={{
                             width: 48,
                             height: 48,
                             borderRadius: '16px',
-                            background: 'linear-gradient(135deg, #8B5CF6, #A855F7)',
+                            background: 'linear-gradient(135deg, #10B981, #22C55E)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             mr: 2,
-                            boxShadow: '0 8px 24px rgba(139, 92, 246, 0.3)',
+                            boxShadow: '0 8px 24px rgba(16, 185, 129, 0.3)',
                           }}>
-                            <Typography sx={{ fontSize: 24 }}>🔮</Typography>
+                            <Typography sx={{ fontSize: 24 }}>🎯</Typography>
                           </Box>
                           <Box>
                             <Typography variant="h6" sx={{ 
                               fontWeight: 700,
-                              color: '#8B5CF6',
+                              color: '#10B981',
                               mb: 0.5,
                             }}>
-                              Grade Prediction
+                              Grade Goals
                             </Typography>
                             <Typography variant="caption" color="text.secondary">
-                              AI-powered forecast
+                              What you need for target GPAs
                             </Typography>
                           </Box>
                         </Box>
-                        <Typography variant="h3" sx={{ 
-                          fontWeight: 800,
-                          background: 'linear-gradient(45deg, #8B5CF6, #A855F7)',
-                          backgroundClip: 'text',
-                          WebkitBackgroundClip: 'text',
-                          WebkitTextFillColor: 'transparent',
-                          mb: 2,
-                        }}>
-                          {analytics.prediction.predicted.toFixed(1)}
-                        </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                          <Box sx={{
-                            flex: 1,
-                            height: 6,
-                            borderRadius: 3,
-                            background: alpha('#8B5CF6', 0.1),
-                            overflow: 'hidden',
-                          }}>
-                            <Box sx={{
-                              width: `${analytics.prediction.confidence * 100}%`,
-                              height: '100%',
-                              background: 'linear-gradient(90deg, #8B5CF6, #A855F7)',
-                              borderRadius: 3,
-                            }} />
-                          </Box>
-                          <Typography variant="body2" color="text.secondary">
-                            {(analytics.prediction.confidence * 100).toFixed(0)}% confidence
-                          </Typography>
+                        
+                        <Box sx={{ flex: 1, overflowY: 'auto', pr: 1, maxHeight: '280px' }}>
+                          {analytics.gradeGoals.map((goal, index) => {
+                            const getStatusColor = (status) => {
+                              switch (status) {
+                                case 'achieved': return '#10B981';
+                                case 'guaranteed': return '#22C55E';
+                                case 'achievable': return '#3B82F6';
+                                case 'impossible': return '#EF4444';
+                                default: return '#6B7280';
+                              }
+                            };
+                            
+                            const getStatusIcon = (status) => {
+                              switch (status) {
+                                case 'achieved': return '✓';
+                                case 'guaranteed': return '★';
+                                case 'achievable': return '→';
+                                case 'impossible': return '✗';
+                                default: return '?';
+                              }
+                            };
+                            
+                            return (
+                              <Box 
+                                key={goal.targetGPA}
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  p: 2,
+                                  mb: 1,
+                                  borderRadius: '12px',
+                                  background: alpha(getStatusColor(goal.status), 0.08),
+                                  border: `1px solid ${alpha(getStatusColor(goal.status), 0.15)}`,
+                                  transition: 'all 0.2s ease',
+                                  '&:hover': {
+                                    transform: 'translateX(4px)',
+                                    background: alpha(getStatusColor(goal.status), 0.12),
+                                  },
+                                }}
+                              >
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                  <Typography sx={{ 
+                                    fontSize: '1.1rem',
+                                    fontWeight: 700,
+                                    color: getStatusColor(goal.status),
+                                    minWidth: '20px',
+                                  }}>
+                                    {getStatusIcon(goal.status)}
+                                  </Typography>
+                                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                                    GPA {goal.targetGPA.toFixed(1)}
+                                  </Typography>
+                                </Box>
+                                <Typography 
+                                  variant="body2" 
+                                  sx={{ 
+                                    color: getStatusColor(goal.status),
+                                    fontWeight: 500,
+                                    fontSize: '0.85rem',
+                                  }}
+                                >
+                                  {goal.message}
+                                </Typography>
+                              </Box>
+                            );
+                          })}
                         </Box>
                       </Box>
-                    )}
-                  </Box>
-                </Slide>
-              </Grid>
+                    </Box>
+                  </motion.div>
+                </Grid>
             </Grid>
             </Box>
 
             {/* Modern Grades Table - Full Width */}
-            <Fade in={dashboardVisible} timeout={1600}>
+            <motion.div
+              variants={itemVariants}
+              initial="hidden"
+              animate="visible"
+              transition={{ delay: 1.2 }}
+            >
               <Box sx={{
                 borderRadius: '24px',
                 overflow: 'hidden',
@@ -747,6 +962,13 @@ export default function SubjectDetail() {
                   : 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.9) 100%)',
                 backdropFilter: 'blur(20px)',
                 border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
+                transition: 'all 0.3s ease',
+                '&:hover': {
+                  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                  boxShadow: theme.palette.mode === 'dark'
+                    ? '0 8px 32px rgba(0, 0, 0, 0.3)'
+                    : '0 8px 32px rgba(0, 0, 0, 0.08)',
+                },
               }}>
                 <Box sx={{ p: 3, borderBottom: `1px solid ${alpha(theme.palette.divider, 0.1)}` }}>
                   <Typography variant="h6" sx={{ fontWeight: 700 }}>
@@ -766,15 +988,28 @@ export default function SubjectDetail() {
                     </TableHead>
                     <TableBody>
                       {grades.map((grade, index) => (
-                        <Grow key={grade.id} in timeout={800 + index * 100}>
-                          <TableRow 
-                            hover 
-                            sx={{ 
-                              '&:hover': { 
-                                backgroundColor: alpha(theme.palette.primary.main, 0.05),
-                              },
-                            }}
-                          >
+                        <motion.tr
+                          key={grade.id}
+                          component={TableRow}
+                          initial={{ opacity: 0, x: -50 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ 
+                            delay: index * 0.1,
+                            type: "spring",
+                            stiffness: 100,
+                            damping: 15
+                          }}
+                          style={{
+                            cursor: 'pointer'
+                          }}
+                          sx={{
+                            transition: 'all 0.2s ease',
+                            '&:hover': {
+                              backgroundColor: alpha(theme.palette.primary.main, 0.06),
+                              transform: 'translateX(4px)',
+                            },
+                          }}
+                        >
                             <TableCell sx={{ fontWeight: 500 }}>{grade.name}</TableCell>
                             <TableCell>
                               <Chip
@@ -800,66 +1035,97 @@ export default function SubjectDetail() {
                             </TableCell>
                             <TableCell>
                               <Box sx={{ display: 'flex', gap: 1 }}>
-                                <IconButton
-                                  size="small"
-                                  onClick={() => handleEditGrade(grade)}
-                                  sx={{ 
-                                    borderRadius: 2,
-                                    '&:hover': { 
-                                      backgroundColor: alpha('#F59E0B', 0.1),
-                                      color: '#F59E0B',
-                                    },
-                                  }}
+                                <motion.div
+                                  whileHover={{ scale: 1.1, rotate: 5 }}
+                                  whileTap={{ scale: 0.9 }}
                                 >
-                                  <EditIcon fontSize="small" />
-                                </IconButton>
-                                <IconButton
-                                  size="small"
-                                  onClick={() => handleDeleteGrade(grade.id)}
-                                  sx={{ 
-                                    borderRadius: 2,
-                                    '&:hover': { 
-                                      backgroundColor: alpha('#EF4444', 0.1),
-                                      color: '#EF4444',
-                                    },
-                                  }}
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => handleEditGrade(grade)}
+                                    sx={{ 
+                                      borderRadius: 2,
+                                      '&:hover': { 
+                                        backgroundColor: alpha('#F59E0B', 0.1),
+                                        color: '#F59E0B',
+                                      },
+                                    }}
+                                  >
+                                    <EditIcon fontSize="small" />
+                                  </IconButton>
+                                </motion.div>
+                                <motion.div
+                                  whileHover={{ scale: 1.1, rotate: -5 }}
+                                  whileTap={{ scale: 0.9 }}
                                 >
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => handleDeleteGrade(grade.id)}
+                                    sx={{ 
+                                      borderRadius: 2,
+                                      '&:hover': { 
+                                        backgroundColor: alpha('#EF4444', 0.1),
+                                        color: '#EF4444',
+                                      },
+                                    }}
+                                  >
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                                </motion.div>
                               </Box>
                             </TableCell>
-                          </TableRow>
-                        </Grow>
+                        </motion.tr>
                       ))}
                     </TableBody>
                   </Table>
                 </TableContainer>
               </Box>
-            </Fade>
-          </Box>
-        </Fade>
+            </motion.div>
+          </motion.div>
       )}
 
-      <Fab
-        aria-label="add"
-        sx={{ 
-          position: 'fixed', 
-          bottom: 16, 
-          right: 16,
-          width: 56,
-          height: 56,
-          borderRadius: '50%',
-          backgroundColor: theme.palette.mode === 'dark' ? '#4a5568' : '#718096',
-          color: 'white',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          '&:hover': {
-            backgroundColor: theme.palette.mode === 'dark' ? '#2d3748' : '#4a5568',
-          },
+      <motion.div
+        initial={{ scale: 0, rotate: -180 }}
+        animate={{ scale: 1, rotate: 0 }}
+        transition={{ 
+          delay: 1.5,
+          type: "spring",
+          stiffness: 200,
+          damping: 15
         }}
-        onClick={handleCreateGrade}
+        style={{
+          position: 'fixed',
+          bottom: 16,
+          right: 16,
+          zIndex: 1000
+        }}
       >
-        <AddIcon />
-      </Fab>
+        <motion.div
+          whileHover={{ 
+            scale: 1.1,
+            rotate: 90,
+            transition: { type: "spring", stiffness: 300 }
+          }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <Fab
+            aria-label="add"
+            sx={{ 
+              width: 56,
+              height: 56,
+              borderRadius: '50%',
+              backgroundColor: theme.palette.mode === 'dark' ? '#4a5568' : '#718096',
+              color: 'white',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+              '&:hover': {
+                backgroundColor: theme.palette.mode === 'dark' ? '#2d3748' : '#4a5568',
+              },
+            }}
+            onClick={handleCreateGrade}
+          >
+            <AddIcon />
+          </Fab>
+        </motion.div>
+      </motion.div>
 
       <Dialog 
         open={dialogOpen} 

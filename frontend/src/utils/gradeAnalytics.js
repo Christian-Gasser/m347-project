@@ -208,3 +208,51 @@ export const getPerformanceMetrics = (grades) => {
     totalGrades: grades.length,
   };
 };
+
+export const calculateGradeGoals = (grades, nextGradeWeight = 1.0) => {
+  if (!grades || grades.length === 0) return [];
+  
+  const currentGPA = calculateGPA(grades);
+  const currentTotalWeight = grades.reduce((sum, grade) => sum + grade.gradeWeight, 0);
+  const currentWeightedSum = grades.reduce((sum, grade) => sum + (grade.grade * grade.gradeWeight), 0);
+  
+  const targets = [3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0];
+  const goals = [];
+  
+  targets.forEach(targetGPA => {
+    // Calculate what grade is needed to achieve the target GPA
+    // Formula: (currentWeightedSum + (neededGrade * nextGradeWeight)) / (currentTotalWeight + nextGradeWeight) = targetGPA
+    // Solving for neededGrade: neededGrade = (targetGPA * (currentTotalWeight + nextGradeWeight) - currentWeightedSum) / nextGradeWeight
+    
+    const newTotalWeight = currentTotalWeight + nextGradeWeight;
+    const neededGrade = (targetGPA * newTotalWeight - currentWeightedSum) / nextGradeWeight;
+    
+    // Determine status
+    let status = 'achievable';
+    let message = '';
+    
+    if (currentGPA >= targetGPA) {
+      status = 'achieved';
+      message = '✓ Already achieved!';
+    } else if (neededGrade > 6.0) {
+      status = 'impossible';
+      message = 'Not achievable with one grade';
+    } else if (neededGrade < 1.0) {
+      status = 'guaranteed';
+      message = 'Already guaranteed!';
+    } else {
+      status = 'achievable';
+      message = `Need ${neededGrade.toFixed(1)}`;
+    }
+    
+    goals.push({
+      targetGPA,
+      neededGrade: Math.max(1.0, Math.min(6.0, neededGrade)),
+      status,
+      message,
+      difficulty: neededGrade > 5.5 ? 'hard' : neededGrade > 4.5 ? 'medium' : 'easy'
+    });
+  });
+  
+  return goals;
+};
