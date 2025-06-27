@@ -32,7 +32,6 @@ export default function Footer() {
       component="footer"
       sx={{
         position: 'relative',
-        mt: 'auto',
         overflow: 'hidden',
         width: '100vw',
         left: '50%',

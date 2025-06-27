@@ -115,77 +115,65 @@ export default function Navbar({ darkMode, toggleDarkMode }) {
           </Typography>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Tooltip 
-            title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            arrow
-            placement="bottom"
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box 
+            onClick={toggleDarkMode}
+            sx={{ 
+              position: 'relative',
+              width: 68,
+              height: 36,
+              borderRadius: '20px',
+              cursor: 'pointer',
+              background: darkMode 
+                ? 'linear-gradient(135deg, #475569 0%, #64748b 100%)'
+                : 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+              border: `1px solid ${darkMode ? '#64748b' : '#d1d5db'}`,
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              boxShadow: darkMode 
+                ? '0 2px 8px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(0, 0, 0, 0.1)'
+                : '0 2px 8px rgba(0, 0, 0, 0.05), inset 0 1px 2px rgba(0, 0, 0, 0.05)',
+            }}
           >
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 1,
-              p: 1,
-              borderRadius: 3,
-              backgroundColor: alpha(theme.palette.background.paper, 0.5),
-              border: darkMode 
-                ? `1px solid ${alpha(theme.palette.primary.main, 0.25)}`
-                : `1px solid ${alpha(theme.palette.text.primary, 0.15)}`,
-              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-              '&:hover': {
-                backgroundColor: alpha(theme.palette.background.paper, 0.8),
-                transform: 'scale(1.02)',
-                border: darkMode 
-                  ? `1px solid ${alpha(theme.palette.primary.main, 0.4)}`
-                  : `1px solid ${alpha(theme.palette.text.primary, 0.25)}`,
-              }
-            }}>
-              <LightModeIcon 
-                sx={{ 
-                  color: !darkMode ? theme.palette.primary.main : theme.palette.text.secondary,
-                  fontSize: 20,
-                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                  filter: !darkMode ? 'drop-shadow(0 0 4px rgba(25, 118, 210, 0.3))' : 'none',
-                }} 
-              />
-              <Switch
-                checked={darkMode}
-                onChange={toggleDarkMode}
-                size="small"
+              
+              {/* Thumb with Icon */}
+              <Box
                 sx={{
-                  '& .MuiSwitch-switchBase': {
-                    '&.Mui-checked': {
-                      '& + .MuiSwitch-track': {
-                        backgroundColor: theme.palette.primary.main,
-                        opacity: 1,
-                      },
-                      '& .MuiSwitch-thumb': {
-                        backgroundColor: '#fff',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-                      },
-                    },
-                  },
-                  '& .MuiSwitch-track': {
-                    backgroundColor: alpha(theme.palette.text.primary, 0.2),
-                    borderRadius: 20,
-                  },
-                  '& .MuiSwitch-thumb': {
-                    backgroundColor: theme.palette.text.primary,
-                    transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                  },
+                  position: 'absolute',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  left: darkMode ? 35 : 3,
+                  width: 28,
+                  height: 28,
+                  borderRadius: '50%',
+                  background: '#ffffff',
+                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
-              />
-              <DarkModeIcon 
-                sx={{ 
-                  color: darkMode ? theme.palette.primary.main : theme.palette.text.secondary,
-                  fontSize: 20,
-                  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                  filter: darkMode ? 'drop-shadow(0 0 4px rgba(144, 202, 249, 0.3))' : 'none',
-                }} 
-              />
+              >
+                {darkMode ? (
+                  <DarkModeIcon 
+                    sx={{ 
+                      fontSize: 16,
+                      color: '#374151',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      filter: 'drop-shadow(0 0 4px rgba(59, 130, 246, 0.6))',
+                    }} 
+                  />
+                ) : (
+                  <LightModeIcon 
+                    sx={{ 
+                      fontSize: 16,
+                      color: '#fbbf24',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                      filter: 'drop-shadow(0 0 4px rgba(251, 191, 36, 0.6))',
+                    }} 
+                  />
+                )}
+              </Box>
             </Box>
-          </Tooltip>
         </Box>
       </Toolbar>
     </AppBar>

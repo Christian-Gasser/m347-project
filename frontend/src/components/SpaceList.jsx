@@ -39,6 +39,7 @@ import ApiService from '../services/api';
 
 export default function SpaceList() {
   const [spaces, setSpaces] = useState([]);
+  const [spacesWithSemesters, setSpacesWithSemesters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -54,8 +55,22 @@ export default function SpaceList() {
   const loadSpaces = async () => {
     try {
       setLoading(true);
-      const data = await ApiService.getSpaces();
-      setSpaces(data);
+      const spacesData = await ApiService.getSpaces();
+      setSpaces(spacesData);
+      
+      // Load semesters for each space
+      const spacesWithSemestersData = await Promise.all(
+        spacesData.map(async (space) => {
+          try {
+            const semesters = await ApiService.getSemesters(space.id);
+            return { ...space, semesters: semesters.slice(0, 3) }; // Only show first 3
+          } catch (err) {
+            return { ...space, semesters: [] };
+          }
+        })
+      );
+      
+      setSpacesWithSemesters(spacesWithSemestersData);
       setError(null);
     } catch (err) {
       setError('Failed to load spaces');
@@ -118,7 +133,7 @@ export default function SpaceList() {
           </Box>
           <Grid container spacing={4}>
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Grid item xs={12} sm={6} md={4} key={i}>
+              <Grid item xs={12} sm={6} md={4} lg={3} xl={2.4} key={i}>
                 <Card 
                   sx={{ 
                     height: '100%',
@@ -242,7 +257,7 @@ export default function SpaceList() {
         </Box>
 
         {/* Empty State */}
-        {!loading && spaces.length === 0 && (
+        {!loading && spacesWithSemesters.length === 0 && (
           <Grow in timeout={1000}>
             <Box sx={{ textAlign: 'center', py: 8 }}>
               <Avatar
@@ -281,14 +296,14 @@ export default function SpaceList() {
         )}
 
         {/* Spaces Grid */}
-        {spaces.length > 0 && (
-          <Grid container spacing={4}>
-            {spaces.map((space, index) => (
-              <Grid item xs={12} sm={6} md={4} key={space.id}>
+        {spacesWithSemesters.length > 0 && (
+          <Grid container spacing={5} justifyContent="center">
+            {spacesWithSemesters.map((space, index) => (
+              <Grid item xs={12} sm={6} md={4} lg={3} xl={2.4} key={space.id}>
                 <Grow in timeout={600 + index * 100}>
                   <Card
                     sx={{
-                      height: '100%',
+                      minHeight: 320,
                       display: 'flex',
                       flexDirection: 'column',
                       cursor: 'pointer',
@@ -317,41 +332,45 @@ export default function SpaceList() {
                     }}
                     onClick={() => handleSpaceClick(space.id)}
                   >
-                    <CardContent sx={{ flexGrow: 1, p: 3 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                    <CardContent sx={{ flexGrow: 1, p: 4 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 4 }}>
                         <Avatar
                           sx={{
-                            width: 48,
-                            height: 48,
-                            mr: 2,
+                            width: 64,
+                            height: 64,
+                            mr: 3,
                             backgroundColor: alpha(theme.palette.primary.main, 0.1),
                             color: 'primary.main',
+                            boxShadow: `0 4px 12px ${alpha(theme.palette.primary.main, 0.2)}`,
                           }}
                         >
-                          <FolderOpenIcon />
+                          <FolderOpenIcon sx={{ fontSize: 32 }} />
                         </Avatar>
                         <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                           <Typography 
-                            variant="h6" 
+                            variant="h5" 
                             component="div" 
                             sx={{ 
-                              fontWeight: 600,
+                              fontWeight: 700,
                               overflow: 'hidden',
                               textOverflow: 'ellipsis',
                               whiteSpace: 'nowrap',
-                              mb: 0.5,
+                              mb: 1.5,
+                              lineHeight: 1.2,
                             }}
                           >
                             {space.name}
                           </Typography>
                           <Chip
-                            size="small"
+                            size="medium"
                             label="Active"
                             color="success"
                             variant="outlined"
                             sx={{ 
-                              fontSize: '0.75rem',
-                              height: 24,
+                              fontSize: '0.875rem',
+                              height: 32,
+                              fontWeight: 600,
+                              px: 2,
                             }}
                           />
                         </Box>
@@ -359,36 +378,74 @@ export default function SpaceList() {
 
                       <Box 
                         sx={{ 
-                          p: 2, 
-                          borderRadius: 2,
-                          backgroundColor: alpha(theme.palette.primary.main, 0.03),
-                          border: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-                          mb: 2,
+                          p: 3, 
+                          borderRadius: 1.5,
+                          backgroundColor: alpha(theme.palette.primary.main, 0.05),
+                          border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+                          mb: 3,
                         }}
                       >
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                          Quick Stats
+                        <Typography variant="body1" color="text.secondary" sx={{ mb: 2, fontWeight: 600 }}>
+                          Semesters ({space.semesters?.length || 0})
                         </Typography>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <TrendingUpIcon sx={{ fontSize: 16, mr: 0.5, color: 'success.main' }} />
-                            <Typography variant="body2" color="success.main" sx={{ fontWeight: 600 }}>
-                              Ready to explore
-                            </Typography>
+                        {space.semesters && space.semesters.length > 0 ? (
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                            {space.semesters.map((semester) => (
+                              <Box 
+                                key={semester.id}
+                                sx={{ 
+                                  display: 'flex', 
+                                  alignItems: 'center',
+                                  p: 1,
+                                  borderRadius: 1,
+                                  backgroundColor: alpha(theme.palette.primary.main, 0.03),
+                                  '&:hover': {
+                                    backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                                  },
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    width: 6,
+                                    height: 6,
+                                    borderRadius: '50%',
+                                    backgroundColor: theme.palette.primary.main,
+                                    mr: 1.5,
+                                  }}
+                                />
+                                <Typography variant="body2" sx={{ fontWeight: 500, fontSize: '0.85rem' }}>
+                                  {semester.name}
+                                </Typography>
+                              </Box>
+                            ))}
+                            {space.semesters.length === 3 && (
+                              <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, textAlign: 'center' }}>
+                                and more...
+                              </Typography>
+                            )}
                           </Box>
-                        </Box>
+                        ) : (
+                          <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                            No semesters yet
+                          </Typography>
+                        )}
                       </Box>
                     </CardContent>
 
-                    <CardActions sx={{ p: 2, pt: 0, justifyContent: 'space-between' }}>
+                    <CardActions sx={{ p: 4, pt: 0, justifyContent: 'space-between' }}>
                       <Button
-                        size="small"
+                        size="large"
                         startIcon={<ExploreIcon />}
                         sx={{
                           color: 'primary.main',
                           fontWeight: 600,
+                          fontSize: '1rem',
+                          px: 3,
+                          py: 1,
+                          borderRadius: 2,
                           '&:hover': {
                             backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                            transform: 'scale(1.02)',
                           },
                         }}
                       >
@@ -396,29 +453,35 @@ export default function SpaceList() {
                       </Button>
                       <Box onClick={(e) => e.stopPropagation()}>
                         <IconButton
-                          size="small"
+                          size="medium"
                           onClick={() => handleEditSpace(space)}
                           sx={{ 
-                            mr: 1,
+                            mr: 1.5,
+                            p: 1.5,
+                            borderRadius: 2,
                             '&:hover': {
                               backgroundColor: alpha(theme.palette.warning.main, 0.1),
                               color: 'warning.main',
+                              transform: 'scale(1.1)',
                             },
                           }}
                         >
-                          <EditIcon fontSize="small" />
+                          <EditIcon />
                         </IconButton>
                         <IconButton
-                          size="small"
+                          size="medium"
                           onClick={() => handleDeleteSpace(space.id)}
                           sx={{
+                            p: 1.5,
+                            borderRadius: 2,
                             '&:hover': {
                               backgroundColor: alpha(theme.palette.error.main, 0.1),
                               color: 'error.main',
+                              transform: 'scale(1.1)',
                             },
                           }}
                         >
-                          <DeleteIcon fontSize="small" />
+                          <DeleteIcon />
                         </IconButton>
                       </Box>
                     </CardActions>
@@ -430,20 +493,22 @@ export default function SpaceList() {
         )}
 
         {/* Floating Action Button */}
-        {spaces.length > 0 && (
+        {spacesWithSemesters.length > 0 && (
           <Zoom in timeout={1000}>
             <Fab
-              color="primary"
               aria-label="add"
               sx={{ 
                 position: 'fixed', 
-                bottom: 24, 
-                right: 24,
-                width: 64,
-                height: 64,
-                boxShadow: `0 8px 32px ${alpha(theme.palette.primary.main, 0.3)}`,
+                bottom: 16, 
+                right: 16,
+                width: 56,
+                height: 56,
+                borderRadius: '50%',
+                backgroundColor: theme.palette.mode === 'dark' ? '#4a5568' : '#718096',
+                color: 'white',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
                 '&:hover': {
-                  boxShadow: `0 12px 40px ${alpha(theme.palette.primary.main, 0.4)}`,
+                  backgroundColor: theme.palette.mode === 'dark' ? '#2d3748' : '#4a5568',
                 },
               }}
               onClick={handleCreateSpace}
