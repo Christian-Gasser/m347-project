@@ -274,7 +274,8 @@ export default function App() {
             justifyContent: 'center',
             width: '100%',
             pt: '8rem',
-            pb: 1,
+            pb: 16,
+            minHeight: 'calc(112vh - 8rem)',
           }}
         >
           <Routes>
