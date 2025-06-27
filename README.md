@@ -4,7 +4,7 @@ A modern web application for managing and analyzing grades for BBW and BMS stude
 
 ## 📋 Project Overview
 
-This application allows students to systematically record, manage, and analyze their grades. The system provides an intuitive user interface for CRUD management of grades with basic analysis features.
+This application allows students to systematically record, manage, and analyze their grades. The system provides an intuitive user interface for CRUD management of grades with advanced analysis features.
 
 ### Data Model (DTO)
 - **Subject**: Name of the subject/module
@@ -56,40 +56,73 @@ This application allows students to systematically record, manage, and analyze t
 ## 📁 Project Structure
 
 ```
-bbw-bms-grades-app/
-├── frontend/                 # React Frontend
+grades-app/
+├── frontend/
 │   ├── src/
-│   │   ├── components/      # React components
-│   │   ├── services/        # API services
-│   │   └── utils/           # Utility functions
-│   ├── Dockerfile           # Frontend Docker build
+│   │   ├── components/
+│   │   │   ├── charts/
+│   │   │   ├── Footer.jsx
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── SemesterDetail.jsx
+│   │   │   ├── SpaceDetail.jsx
+│   │   │   ├── SpaceList.jsx
+│   │   │   ├── StatisticsCard.jsx
+│   │   │   └── SubjectDetail.jsx
+│   │   ├── services/
+│   │   │   └── api.js
+│   │   ├── utils/
+│   │   │   └── gradeAnalytics.js
+│   │   ├── assets/
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── public/
+│   ├── Dockerfile
 │   ├── package.json
-│   └── vite.config.js
-├── backend/                 # Spring Boot Backend
+│   ├── vite.config.js
+│   └── README.md
+├── backend/
 │   ├── src/main/java/
-│   │   └── com/bbw/grades/
-│   │       ├── controller/  # REST controllers
-│   │       ├── service/     # Business logic
-│   │       ├── repository/  # Data access layer
-│   │       └── dto/         # Data transfer objects
-│   ├── Dockerfile           # Backend Docker build
-│   ├── build.gradle
-│   └── application.yml
-├── database/                # Database setup
-│   ├── init/
-│   │   └── schema.sql       # Database schema
-│   └── docker-compose.db.yml
-├── .github/workflows/       # CI/CD pipeline
-│   └── ci.yml
-├── docker-compose.yml       # Multi-service setup
-├── .env.example             # Environment variables template
+│   │   └── bbw/christian/m347gradesmanagement/backend/
+│   │       ├── controllers/
+│   │       │   ├── GradeController.java
+│   │       │   ├── SemesterController.java
+│   │       │   ├── SpaceController.java
+│   │       │   └── SubjectController.java
+│   │       ├── services/
+│   │       │   ├── GradeService.java
+│   │       │   ├── SemesterService.java
+│   │       │   ├── SpaceService.java
+│   │       │   └── SubjectService.java
+│   │       ├── repositories/
+│   │       │   ├── GradeRepository.java
+│   │       │   ├── SemesterRepository.java
+│   │       │   ├── SpaceRepository.java
+│   │       │   └── SubjectRepository.java
+│   │       ├── models/
+│   │       │   ├── Grade.java
+│   │       │   ├── Semester.java
+│   │       │   ├── Space.java
+│   │       │   └── Subject.java
+│   │       └── BackendApplication.java
+│   ├── src/main/resources/
+│   │   ├── application.properties
+│   │   └── application-test.properties
+│   ├── src/test/java/
+│   ├── Dockerfile
+│   ├── build.gradle.kts
+│   ├── settings.gradle.kts
+│   └── gradle/
+├── database/
+│   └── init.sql
+├── docker-compose.yaml
+├── package.json
 └── README.md
 ```
 
 ## 🔧 Technical Details
 
 ### Frontend
-- **Framework**: React 19 with Vite
+- **Framework**: React 19 with Vite 7.0.0
 - **UI Library**: Material-UI (MUI)
 - **Build**: Multi-stage Docker build with nginx
 - **Features**: 
@@ -213,27 +246,6 @@ If monitoring stack is enabled:
 - Database with dedicated users and permissions
 - Health checks for all containers
 
-## 🐛 Troubleshooting
-
-### Common Issues
-
-**Port already in use**
-```bash
-docker-compose down
-sudo lsof -i :8080  # Check port
-```
-
-**Database connection issues**
-```bash
-docker-compose logs database
-docker-compose exec database psql -U grades_user -d grades_db
-```
-
-**Frontend build errors**
-```bash
-docker-compose logs frontend
-docker system prune -a  # Clear Docker cache
-```
 
 ## 📝 Development
 
@@ -271,6 +283,6 @@ This project is developed for educational purposes and is under [MIT License](LI
 
 For questions or issues:
 - Create GitHub issues
-- Contact team lead
+- Contact team lead ([AdminGodZ](https://github.com/AdminGodZ), [Christian-Gasser](https://github.com/Christian-Gasser))
 
 ---
