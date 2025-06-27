@@ -45,7 +45,8 @@ export const AnimatedStatCard = ({
   return (
     <Box sx={{
       p: 4,
-      minHeight: '200px',
+      minHeight: '220px',
+      minWidth: '280px',
       borderRadius: '24px',
       background: theme.palette.mode === 'dark'
         ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%)'
@@ -89,8 +90,8 @@ export const AnimatedStatCard = ({
         mb: 2,
       }}>
         <Box sx={{
-          width: 48,
-          height: 48,
+          width: 56,
+          height: 56,
           borderRadius: '16px',
           background: `linear-gradient(135deg, ${alpha(color, 0.1)}, ${alpha(color, 0.05)})`,
           display: 'flex',
@@ -101,7 +102,7 @@ export const AnimatedStatCard = ({
           transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.2s',
         }}>
           <Icon sx={{ 
-            fontSize: 24, 
+            fontSize: 28, 
             color: color,
             filter: `drop-shadow(0 0 8px ${alpha(color, 0.3)})`,
           }} />
@@ -132,26 +133,28 @@ export const AnimatedStatCard = ({
       </Box>
 
       {/* Title */}
-      <Typography variant="body2" sx={{ 
+      <Typography variant="body1" sx={{ 
         color: 'text.secondary',
-        fontWeight: 500,
-        mb: 1,
+        fontWeight: 600,
+        mb: 1.5,
         opacity: isVisible ? 1 : 0,
         transition: 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s',
+        fontSize: '1rem',
       }}>
         {title}
       </Typography>
 
       {/* Animated Value */}
-      <Typography variant="h4" sx={{ 
+      <Typography variant="h3" sx={{ 
         fontWeight: 800,
         background: `linear-gradient(45deg, ${color}, ${alpha(color, 0.7)})`,
         backgroundClip: 'text',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
-        mb: 2,
+        mb: 2.5,
         transform: isVisible ? 'scale(1)' : 'scale(0.9)',
         transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.5s',
+        fontSize: '2.5rem',
       }}>
         {animatedValue.toFixed(1)}{suffix}
       </Typography>
@@ -160,8 +163,8 @@ export const AnimatedStatCard = ({
       {maxValue && (
         <Box sx={{ position: 'relative' }}>
           <Box sx={{
-            height: 6,
-            borderRadius: 3,
+            height: 8,
+            borderRadius: 4,
             background: alpha(theme.palette.text.secondary, 0.1),
             overflow: 'hidden',
           }}>
@@ -169,17 +172,18 @@ export const AnimatedStatCard = ({
               height: '100%',
               width: `${percentage * (isVisible ? 1 : 0)}%`,
               background: `linear-gradient(90deg, ${color}, ${alpha(color, 0.7)})`,
-              borderRadius: 3,
+              borderRadius: 4,
               transition: 'width 1.2s cubic-bezier(0.4, 0, 0.2, 1) 0.6s',
               boxShadow: `0 0 12px ${alpha(color, 0.4)}`,
             }} />
           </Box>
-          <Typography variant="caption" sx={{ 
+          <Typography variant="body2" sx={{ 
             color: 'text.secondary',
-            mt: 0.5,
+            mt: 1,
             display: 'block',
             opacity: isVisible ? 1 : 0,
             transition: 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.8s',
+            fontSize: '0.875rem',
           }}>
             {percentage.toFixed(0)}% of maximum
           </Typography>

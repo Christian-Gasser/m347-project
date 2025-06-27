@@ -1,5 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Typography, useTheme, alpha } from '@mui/material';
+import {
+  LineChart as RechartsLineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart as RechartsBarChart,
+  Bar,
+  RadarChart as RechartsRadarChart,
+  Radar,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Legend,
+  Area,
+  AreaChart,
+} from 'recharts';
+
+// Custom tooltip component
+const CustomTooltip = ({ active, payload, label }) => {
+  const theme = useTheme();
+  
+  if (active && payload && payload.length) {
+    return (
+      <Box
+        sx={{
+          backgroundColor: theme.palette.mode === 'dark' ? 'rgba(0, 0, 0, 0.8)' : 'rgba(255, 255, 255, 0.95)',
+          border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+          borderRadius: '12px',
+          p: 2,
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+        }}
+      >
+        <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
+          {label}
+        </Typography>
+        {payload.map((entry, index) => (
+          <Typography
+            key={index}
+            variant="body2"
+            sx={{ color: entry.color }}
+          >
+            {entry.name}: {entry.value.toFixed(1)}
+          </Typography>
+        ))}
+      </Box>
+    );
+  }
+  return null;
+};
 
 export const LineChart = ({ data, title, color = '#0EA5E9' }) => {
   const theme = useTheme();
@@ -12,20 +67,17 @@ export const LineChart = ({ data, title, color = '#0EA5E9' }) => {
 
   if (!data || data.length === 0) return null;
 
-  const maxValue = Math.max(...data.map(d => d.value));
-  const minValue = Math.min(...data.map(d => d.value));
-  const range = maxValue - minValue || 1;
-
-  const points = data.map((item, index) => {
-    const x = (index / (data.length - 1)) * 300;
-    const y = 100 - ((item.value - minValue) / range) * 80;
-    return `${x},${y}`;
-  }).join(' ');
+  // Transform data for Recharts
+  const chartData = data.map((item) => ({
+    name: item.label,
+    value: item.value,
+  }));
 
   return (
     <Box sx={{ 
       p: 4,
-      minHeight: '320px', 
+      minHeight: '320px',
+      minWidth: '450px',
       borderRadius: '24px',
       background: theme.palette.mode === 'dark'
         ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%)'
@@ -58,101 +110,36 @@ export const LineChart = ({ data, title, color = '#0EA5E9' }) => {
         {title}
       </Typography>
       
-      <Box sx={{ position: 'relative', height: 120 }}>
-        <svg width="100%" height="120" viewBox="0 0 300 120">
-          {/* Grid lines */}
+      <ResponsiveContainer width="100%" height={200}>
+        <AreaChart data={chartData}>
           <defs>
-            <linearGradient id={`gradient-${title}`} x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor={alpha(color, 0.3)} />
-              <stop offset="100%" stopColor={alpha(color, 0.05)} />
+            <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={color} stopOpacity={0.3}/>
+              <stop offset="95%" stopColor={color} stopOpacity={0.05}/>
             </linearGradient>
           </defs>
-          
-          {[0, 25, 50, 75, 100].map(y => (
-            <line
-              key={y}
-              x1="0"
-              y1={y + 10}
-              x2="300"
-              y2={y + 10}
-              stroke={alpha(theme.palette.text.secondary, 0.1)}
-              strokeWidth="1"
-              strokeDasharray="2,2"
-            />
-          ))}
-          
-          {/* Area under curve */}
-          <path
-            d={`M 0,110 L ${points} L 300,110 Z`}
-            fill={`url(#gradient-${title})`}
-            style={{
-              clipPath: `inset(0 ${100 - animationProgress * 100}% 0 0)`,
-              transition: 'clip-path 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
+          <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.text.secondary, 0.1)} />
+          <XAxis 
+            dataKey="name" 
+            stroke={theme.palette.text.secondary}
+            tick={{ fontSize: 12 }}
           />
-          
-          {/* Main line */}
-          <polyline
-            points={points}
-            fill="none"
+          <YAxis 
+            stroke={theme.palette.text.secondary}
+            tick={{ fontSize: 12 }}
+            domain={[1, 6]}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Area 
+            type="monotone" 
+            dataKey="value" 
             stroke={color}
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{
-              strokeDasharray: '1000',
-              strokeDashoffset: `${1000 * (1 - animationProgress)}`,
-              transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
+            strokeWidth={3}
+            fill="url(#colorGradient)"
+            animationDuration={1500}
           />
-          
-          {/* Data points */}
-          {data.map((item, index) => {
-            const x = (index / (data.length - 1)) * 300;
-            const y = 100 - ((item.value - minValue) / range) * 80 + 10;
-            return (
-              <circle
-                key={index}
-                cx={x}
-                cy={y}
-                r="4"
-                fill={color}
-                stroke="#fff"
-                strokeWidth="2"
-                style={{
-                  opacity: animationProgress,
-                  transform: `scale(${animationProgress})`,
-                  transformOrigin: `${x}px ${y}px`,
-                  transition: `all ${0.5 + index * 0.1}s cubic-bezier(0.4, 0, 0.2, 1)`,
-                }}
-              />
-            );
-          })}
-        </svg>
-        
-        {/* Labels */}
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          mt: 1,
-          px: 1,
-        }}>
-          {data.map((item, index) => (
-            <Typography 
-              key={index} 
-              variant="caption" 
-              sx={{ 
-                color: 'text.secondary',
-                fontSize: '0.75rem',
-                opacity: animationProgress,
-                transition: `opacity ${0.5 + index * 0.1}s cubic-bezier(0.4, 0, 0.2, 1)`,
-              }}
-            >
-              {item.label}
-            </Typography>
-          ))}
-        </Box>
-      </Box>
+        </AreaChart>
+      </ResponsiveContainer>
     </Box>
   );
 };
@@ -167,8 +154,12 @@ export const DonutChart = ({ value, maxValue = 6, title, color = '#10B981' }) =>
   }, []);
 
   const percentage = (value / maxValue) * 100;
-  const circumference = 2 * Math.PI * 45;
-  const strokeDasharray = `${(percentage / 100) * circumference * animationProgress} ${circumference}`;
+  const data = [
+    { name: 'Score', value: value },
+    { name: 'Remaining', value: maxValue - value },
+  ];
+
+  const COLORS = [color, alpha(theme.palette.text.secondary, 0.1)];
 
   return (
     <Box sx={{ 
@@ -196,35 +187,28 @@ export const DonutChart = ({ value, maxValue = 6, title, color = '#10B981' }) =>
       </Typography>
       
       <Box sx={{ position: 'relative', display: 'inline-block' }}>
-        <svg width="120" height="120" style={{ transform: 'rotate(-90deg)' }}>
-          {/* Background circle */}
-          <circle
-            cx="60"
-            cy="60"
-            r="45"
-            fill="none"
-            stroke={alpha(theme.palette.text.secondary, 0.1)}
-            strokeWidth="8"
-          />
-          
-          {/* Progress circle */}
-          <circle
-            cx="60"
-            cy="60"
-            r="45"
-            fill="none"
-            stroke={color}
-            strokeWidth="8"
-            strokeLinecap="round"
-            strokeDasharray={strokeDasharray}
-            style={{
-              filter: `drop-shadow(0 0 8px ${alpha(color, 0.5)})`,
-              transition: 'stroke-dasharray 1.5s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-          />
-        </svg>
+        <ResponsiveContainer width={200} height={200}>
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              innerRadius={60}
+              outerRadius={80}
+              startAngle={90}
+              endAngle={-270}
+              dataKey="value"
+              animationBegin={0}
+              animationDuration={1500}
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS[index]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
         
-        {/* Center value */}
         <Box sx={{
           position: 'absolute',
           top: '50%',
@@ -274,7 +258,7 @@ export const BarChart = ({ data, title, color = '#F59E0B' }) => {
 
   if (!data || data.length === 0) return null;
 
-  const maxValue = Math.max(...data.map(d => d.value), 1); // Prevent division by zero
+  const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'];
 
   return (
     <Box sx={{ 
@@ -298,78 +282,30 @@ export const BarChart = ({ data, title, color = '#F59E0B' }) => {
         {title}
       </Typography>
       
-      <Box sx={{ display: 'flex', alignItems: 'end', gap: 2, height: 120 }}>
-        {data.map((item, index) => {
-          const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444'];
-          const itemColor = colors[index] || color;
-          
-          return (
-            <Box key={index} sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <Box sx={{ 
-                width: '100%', 
-                display: 'flex', 
-                alignItems: 'end', 
-                height: 100,
-                position: 'relative',
-              }}>
-                <Box sx={{
-                  width: '100%',
-                  height: `${(item.value / maxValue) * 100 * animationProgress}%`,
-                  minHeight: item.value > 0 ? '8px' : '0px', // Minimum height for non-zero values
-                  background: `linear-gradient(180deg, ${itemColor}, ${alpha(itemColor, 0.7)})`,
-                  borderRadius: '8px 8px 4px 4px',
-                  transition: `height ${0.8 + index * 0.1}s cubic-bezier(0.4, 0, 0.2, 1)`,
-                  boxShadow: `0 4px 12px ${alpha(itemColor, 0.3)}`,
-                  position: 'relative',
-                  '&::after': {
-                    content: '""',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: '2px',
-                    background: alpha('#fff', 0.3),
-                    borderRadius: '8px 8px 0 0',
-                  },
-                }} />
-                
-                {/* Value label */}
-                {item.value > 0 && (
-                  <Typography 
-                    variant="caption" 
-                    sx={{ 
-                      position: 'absolute',
-                      top: -20,
-                      left: '50%',
-                      transform: 'translateX(-50%)',
-                      color: itemColor,
-                      fontWeight: 600,
-                      opacity: animationProgress,
-                      transition: `opacity ${0.5 + index * 0.1}s cubic-bezier(0.4, 0, 0.2, 1)`,
-                    }}
-                  >
-                    {item.value}
-                  </Typography>
-                )}
-              </Box>
-              
-              <Typography 
-                variant="caption" 
-                sx={{ 
-                  mt: 1, 
-                  color: 'text.secondary',
-                  textAlign: 'center',
-                  opacity: animationProgress,
-                  transition: `opacity ${0.5 + index * 0.1}s cubic-bezier(0.4, 0, 0.2, 1)`,
-                  fontSize: '0.7rem',
-                }}
-              >
-                {item.label}
-              </Typography>
-            </Box>
-          );
-        })}
-      </Box>
+      <ResponsiveContainer width="100%" height={200}>
+        <RechartsBarChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" stroke={alpha(theme.palette.text.secondary, 0.1)} />
+          <XAxis 
+            dataKey="label" 
+            stroke={theme.palette.text.secondary}
+            tick={{ fontSize: 12 }}
+          />
+          <YAxis 
+            stroke={theme.palette.text.secondary}
+            tick={{ fontSize: 12 }}
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Bar 
+            dataKey="value" 
+            animationDuration={1500}
+            radius={[8, 8, 4, 4]}
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+            ))}
+          </Bar>
+        </RechartsBarChart>
+      </ResponsiveContainer>
     </Box>
   );
 };
@@ -385,33 +321,11 @@ export const RadarChart = ({ data, title, color = '#8B5CF6' }) => {
 
   if (!data || data.length === 0) return null;
 
-  const size = 160;
-  const center = size / 2;
-  const maxRadius = 60;
-  const levels = 5;
-  
-  // Calculate points for radar chart
-  const angleStep = (2 * Math.PI) / data.length;
-  const maxValue = Math.max(...data.map(d => d.value));
-  
-  const getPoint = (value, index, radius = maxRadius) => {
-    const angle = index * angleStep - Math.PI / 2; // Start from top
-    const r = (value / maxValue) * radius * animationProgress;
-    return {
-      x: center + r * Math.cos(angle),
-      y: center + r * Math.sin(angle)
-    };
-  };
-
-  const polygonPoints = data.map((item, index) => {
-    const point = getPoint(item.value, index);
-    return `${point.x},${point.y}`;
-  }).join(' ');
-
   return (
     <Box sx={{ 
       p: 4,
-      minHeight: '320px', 
+      minHeight: '360px',
+      minWidth: '320px',
       borderRadius: '24px',
       background: theme.palette.mode === 'dark'
         ? 'linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%)'
@@ -419,6 +333,9 @@ export const RadarChart = ({ data, title, color = '#8B5CF6' }) => {
       backdropFilter: 'blur(20px)',
       border: `1px solid ${alpha(color, 0.2)}`,
       textAlign: 'center',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
     }}>
       <Typography variant="h6" sx={{ 
         mb: 3, 
@@ -431,105 +348,35 @@ export const RadarChart = ({ data, title, color = '#8B5CF6' }) => {
         {title}
       </Typography>
       
-      <Box sx={{ position: 'relative', display: 'inline-block' }}>
-        <svg width={size} height={size}>
-          {/* Grid circles */}
-          {Array.from({ length: levels }, (_, i) => {
-            const radius = ((i + 1) / levels) * maxRadius;
-            return (
-              <circle
-                key={i}
-                cx={center}
-                cy={center}
-                r={radius}
-                fill="none"
-                stroke={alpha(theme.palette.text.secondary, 0.1)}
-                strokeWidth="1"
-                strokeDasharray="2,2"
-              />
-            );
-          })}
-          
-          {/* Grid lines */}
-          {data.map((_, index) => {
-            const point = getPoint(maxValue, index);
-            return (
-              <line
-                key={index}
-                x1={center}
-                y1={center}
-                x2={point.x}
-                y2={point.y}
-                stroke={alpha(theme.palette.text.secondary, 0.1)}
-                strokeWidth="1"
-                strokeDasharray="2,2"
-              />
-            );
-          })}
-          
-          {/* Data polygon */}
-          <polygon
-            points={polygonPoints}
-            fill={alpha(color, 0.2)}
-            stroke={color}
-            strokeWidth="2"
-            strokeLinejoin="round"
-            style={{
-              filter: `drop-shadow(0 0 8px ${alpha(color, 0.5)})`,
-              transition: 'all 1s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
+      <ResponsiveContainer width="100%" height={280}>
+        <RechartsRadarChart data={data}>
+          <PolarGrid 
+            stroke={alpha(theme.palette.text.secondary, 0.1)}
+            strokeDasharray="3 3"
           />
-          
-          {/* Data points */}
-          {data.map((item, index) => {
-            const point = getPoint(item.value, index);
-            return (
-              <circle
-                key={index}
-                cx={point.x}
-                cy={point.y}
-                r="4"
-                fill={color}
-                stroke="#fff"
-                strokeWidth="2"
-                style={{
-                  opacity: animationProgress,
-                  transform: `scale(${animationProgress})`,
-                  transformOrigin: `${point.x}px ${point.y}px`,
-                  transition: `all ${0.5 + index * 0.1}s cubic-bezier(0.4, 0, 0.2, 1)`,
-                }}
-              />
-            );
-          })}
-        </svg>
-        
-        {/* Labels */}
-        <Box sx={{ position: 'absolute', inset: 0 }}>
-          {data.map((item, index) => {
-            const labelPoint = getPoint(maxValue * 1.15, index, maxRadius * 1.15);
-            return (
-              <Typography
-                key={index}
-                variant="caption"
-                sx={{
-                  position: 'absolute',
-                  left: labelPoint.x - 20,
-                  top: labelPoint.y - 8,
-                  width: 40,
-                  textAlign: 'center',
-                  color: 'text.secondary',
-                  fontSize: '0.7rem',
-                  fontWeight: 600,
-                  opacity: animationProgress,
-                  transition: `opacity ${0.5 + index * 0.1}s cubic-bezier(0.4, 0, 0.2, 1)`,
-                }}
-              >
-                {item.label}
-              </Typography>
-            );
-          })}
-        </Box>
-      </Box>
+          <PolarAngleAxis 
+            dataKey="label"
+            stroke={theme.palette.text.secondary}
+            tick={{ fontSize: 12 }}
+          />
+          <PolarRadiusAxis 
+            angle={90}
+            domain={[0, 100]}
+            stroke={alpha(theme.palette.text.secondary, 0.1)}
+            tick={{ fontSize: 10 }}
+          />
+          <Radar 
+            name="Performance" 
+            dataKey="value" 
+            stroke={color}
+            fill={color}
+            fillOpacity={0.3}
+            strokeWidth={2}
+            animationDuration={1500}
+          />
+          <Tooltip content={<CustomTooltip />} />
+        </RechartsRadarChart>
+      </ResponsiveContainer>
     </Box>
   );
 };

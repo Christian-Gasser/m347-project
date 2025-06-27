@@ -353,55 +353,9 @@ export default function SubjectDetail() {
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h4" sx={{ textAlign: 'center', mb: 2 }}>
+        <Typography variant="h4" sx={{ textAlign: 'center' }}>
           {subject?.name} - Grades
         </Typography>
-        {grades.length > 0 && (
-          <Box sx={{
-            px: 4,
-            py: 2,
-            borderRadius: '20px',
-            background: theme.palette.mode === 'dark'
-              ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%)'
-              : 'linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 51, 234, 0.05) 100%)',
-            backdropFilter: 'blur(20px)',
-            border: `1px solid ${alpha('#3B82F6', 0.2)}`,
-            display: 'flex',
-            alignItems: 'center',
-            gap: 2,
-          }}>
-            <Box sx={{
-              width: 40,
-              height: 40,
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #3B82F6, #9333EA)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)',
-            }}>
-              <AssessmentIcon sx={{ fontSize: 20, color: 'white' }} />
-            </Box>
-            <Box>
-              <Typography variant="caption" sx={{ 
-                color: 'text.secondary',
-                fontSize: '0.75rem',
-                display: 'block',
-              }}>
-                Overall Performance
-              </Typography>
-              <Typography variant="h6" sx={{
-                fontWeight: 700,
-                background: 'linear-gradient(45deg, #3B82F6, #9333EA)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}>
-                {calculateWeightedAverage()}/6.0
-              </Typography>
-            </Box>
-          </Box>
-        )}
       </Box>
 
       <Box sx={{ mb: 3, minHeight: '60px', display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
@@ -560,160 +514,165 @@ export default function SubjectDetail() {
         </Fade>
       ) : (
         <Fade in={dashboardVisible} timeout={600}>
-          <Box sx={{ maxWidth: '1200px', mx: 'auto' }}>
-            {/* Analytics Dashboard */}
-            <Grid container spacing={3} sx={{ mb: 4 }}>
-              {/* Key Metrics Row */}
-              <Grid item xs={12} sm={6} md={3}>
-                <AnimatedStatCard
-                  title="Current GPA"
-                  value={analytics.gpa}
-                  maxValue={6}
-                  icon={SpeedIcon}
-                  color="#3B82F6"
-                  trend={analytics.trend}
-                  delay={100}
-                />
+          <Box>
+            {/* Analytics Dashboard - Full Width */}
+            <Box sx={{ mb: 4 }}>
+              <Grid container spacing={3}>
+                {/* Key Metrics Row */}
+                <Grid item xs={12} sm={6} md={3}>
+                  <AnimatedStatCard
+                    title="Current GPA"
+                    value={analytics.gpa}
+                    maxValue={6}
+                    icon={SpeedIcon}
+                    color="#3B82F6"
+                    trend={analytics.trend}
+                    delay={100}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <AnimatedStatCard
+                    title="Best Grade"
+                    value={analytics.metrics.bestGrade || 0}
+                    maxValue={6}
+                    icon={TrophyIcon}
+                    color="#10B981"
+                    delay={200}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <AnimatedStatCard
+                    title="Consistency"
+                    value={analytics.metrics.consistency || 0}
+                    maxValue={100}
+                    suffix="%"
+                    icon={TargetIcon}
+                    color="#F59E0B"
+                    delay={300}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <AnimatedStatCard
+                    title="Total Grades"
+                    value={analytics.metrics.totalGrades || 0}
+                    icon={BarChartIcon}
+                    color="#8B5CF6"
+                    delay={400}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <AnimatedStatCard
-                  title="Best Grade"
-                  value={analytics.metrics.bestGrade || 0}
-                  maxValue={6}
-                  icon={TrophyIcon}
-                  color="#10B981"
-                  delay={200}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <AnimatedStatCard
-                  title="Consistency"
-                  value={analytics.metrics.consistency || 0}
-                  maxValue={100}
-                  suffix="%"
-                  icon={TargetIcon}
-                  color="#F59E0B"
-                  delay={300}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6} md={3}>
-                <AnimatedStatCard
-                  title="Total Grades"
-                  value={analytics.metrics.totalGrades || 0}
-                  icon={BarChartIcon}
-                  color="#8B5CF6"
-                  delay={400}
-                />
-              </Grid>
-            </Grid>
+            </Box>
 
-            {/* Charts Row */}
-            <Grid container spacing={3} sx={{ mb: 6 }}>
-              <Grid item xs={12} md={4}>
-                <Grow in={dashboardVisible} timeout={800}>
-                  <Box>
-                    <Box sx={{ minHeight: '280px' }}>
-                      <DonutChart
-                        value={analytics.gpa}
-                        maxValue={6}
-                        title="Current GPA"
-                        color="#3B82F6"
-                      />
-                    </Box>
-                  </Box>
-                </Grow>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <Grow in={dashboardVisible} timeout={1000}>
-                  <Box>
-                    <Box sx={{ minHeight: '280px' }}>
-                      {analytics.timeSeriesData.length > 0 && (
-                        <LineChart
-                          data={analytics.timeSeriesData}
-                          title="Grade Progression"
-                          color="#10B981"
+            {/* Charts Row - Full Width */}
+            <Box sx={{ mb: 6 }}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={4}>
+                  <Grow in={dashboardVisible} timeout={800}>
+                    <Box>
+                      <Box sx={{ minHeight: '280px' }}>
+                        <DonutChart
+                          value={analytics.gpa}
+                          maxValue={6}
+                          title="Current GPA"
+                          color="#3B82F6"
                         />
-                      )}
+                      </Box>
                     </Box>
-                  </Box>
-                </Grow>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <Grow in={dashboardVisible} timeout={1200}>
-                  <Box>
-                    <Box sx={{ minHeight: '280px' }}>
-                      <BarChart
-                        data={[
-                          { label: 'Excellent', value: grades.filter(g => g.grade >= 5.5).length },
-                          { label: 'Good', value: grades.filter(g => g.grade >= 4.5 && g.grade < 5.5).length },
-                          { label: 'Average', value: grades.filter(g => g.grade >= 3.5 && g.grade < 4.5).length },
-                          { label: 'Poor', value: grades.filter(g => g.grade < 3.5).length },
-                        ]}
-                        title="Grade Distribution"
-                        color="#F59E0B"
-                      />
+                  </Grow>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Grow in={dashboardVisible} timeout={1000}>
+                    <Box>
+                      <Box sx={{ minHeight: '280px' }}>
+                        {analytics.timeSeriesData.length > 0 && (
+                          <LineChart
+                            data={analytics.timeSeriesData}
+                            title="Grade Progression"
+                            color="#10B981"
+                          />
+                        )}
+                      </Box>
                     </Box>
-                  </Box>
-                </Grow>
+                  </Grow>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Grow in={dashboardVisible} timeout={1200}>
+                    <Box>
+                      <Box sx={{ minHeight: '280px' }}>
+                        <BarChart
+                          data={[
+                            { label: 'Excellent', value: grades.filter(g => g.grade >= 5.5).length },
+                            { label: 'Good', value: grades.filter(g => g.grade >= 4.5 && g.grade < 5.5).length },
+                            { label: 'Average', value: grades.filter(g => g.grade >= 3.5 && g.grade < 4.5).length },
+                            { label: 'Poor', value: grades.filter(g => g.grade < 3.5).length },
+                          ]}
+                          title="Grade Distribution"
+                          color="#F59E0B"
+                        />
+                      </Box>
+                    </Box>
+                  </Grow>
+                </Grid>
               </Grid>
-            </Grid>
+            </Box>
 
-            {/* Advanced Analytics Row */}
-            <Grid container spacing={3} sx={{ mb: 6 }}>
-              <Grid item xs={12} md={4}>
-                <Slide direction="right" in={dashboardVisible} timeout={1200}>
-                  <Box>
-                    <Box sx={{ minHeight: '320px' }}>
-                      <GradeInsightCard insights={analytics.insights} delay={600} />
+            {/* Advanced Analytics Row - Full Width */}
+            <Box sx={{ mb: 6 }}>
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={4}>
+                  <Slide direction="right" in={dashboardVisible} timeout={1200}>
+                    <Box>
+                      <Box sx={{ minHeight: '320px' }}>
+                        <GradeInsightCard insights={analytics.insights} delay={600} />
+                      </Box>
                     </Box>
-                  </Box>
-                </Slide>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <Grow in={dashboardVisible} timeout={1400}>
-                  <Box>
-                    <Box sx={{ minHeight: '320px' }}>
-                      <RadarChart
-                        data={[
-                          { label: 'Accuracy', value: analytics.metrics.consistency || 50 },
-                          { label: 'Performance', value: (analytics.gpa / 6) * 100 },
-                          { label: 'Trend', value: Math.max(0, Math.min(100, 50 + analytics.trend)) },
-                          { label: 'Progress', value: Math.min(100, grades.length * 10) },
-                          { label: 'Quality', value: (analytics.metrics.bestGrade / 6) * 100 || 0 },
-                        ]}
-                        title="Performance Radar"
-                        color="#8B5CF6"
-                      />
+                  </Slide>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Grow in={dashboardVisible} timeout={1400}>
+                    <Box>
+                      <Box sx={{ minHeight: '320px' }}>
+                        <RadarChart
+                          data={[
+                            { label: 'Consistency', value: analytics.metrics.consistency || 0 },
+                            { label: 'Average', value: (analytics.gpa / 6) * 100 },
+                            { label: 'Trend', value: Math.max(0, Math.min(100, 50 + (analytics.trend * 2))) },
+                            { label: 'Experience', value: Math.min(100, grades.length * 5) },
+                            { label: 'Best Grade', value: (analytics.metrics.bestGrade / 6) * 100 || 0 },
+                          ]}
+                          title="Performance Radar"
+                          color="#8B5CF6"
+                        />
+                      </Box>
                     </Box>
-                  </Box>
-                </Grow>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <Slide direction="left" in={dashboardVisible} timeout={1600}>
-                  <Box>
-                    {analytics.prediction && (
-                      <Box sx={{
-                        p: 4,
-                        borderRadius: '24px',
-                        background: theme.palette.mode === 'dark'
-                          ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)'
-                          : 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%)',
-                        backdropFilter: 'blur(20px)',
-                        border: `1px solid ${alpha('#8B5CF6', 0.2)}`,
-                        position: 'relative',
-                        overflow: 'hidden',
-                        minHeight: '320px',
-                        '&::before': {
-                          content: '""',
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          height: '3px',
-                          background: 'linear-gradient(90deg, #8B5CF6, #A855F7)',
-                          opacity: 0.6,
-                        },
-                      }}>
+                  </Grow>
+                </Grid>
+                <Grid item xs={12} md={4}>
+                  <Slide direction="left" in={dashboardVisible} timeout={1600}>
+                    <Box>
+                      {analytics.prediction && (
+                        <Box sx={{
+                          p: 4,
+                          borderRadius: '24px',
+                          background: theme.palette.mode === 'dark'
+                            ? 'linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)'
+                            : 'linear-gradient(135deg, rgba(139, 92, 246, 0.05) 0%, rgba(168, 85, 247, 0.05) 100%)',
+                          backdropFilter: 'blur(20px)',
+                          border: `1px solid ${alpha('#8B5CF6', 0.2)}`,
+                          position: 'relative',
+                          overflow: 'hidden',
+                          minHeight: '320px',
+                          '&::before': {
+                            content: '""',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: '3px',
+                            background: 'linear-gradient(90deg, #8B5CF6, #A855F7)',
+                            opacity: 0.6,
+                          },
+                        }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                           <Box sx={{
                             width: 48,
@@ -776,8 +735,9 @@ export default function SubjectDetail() {
                 </Slide>
               </Grid>
             </Grid>
+            </Box>
 
-            {/* Modern Grades Table */}
+            {/* Modern Grades Table - Full Width */}
             <Fade in={dashboardVisible} timeout={1600}>
               <Box sx={{
                 borderRadius: '24px',
