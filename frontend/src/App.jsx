@@ -10,11 +10,33 @@ import SubjectDetail from './components/SubjectDetail';
 import Footer from './components/Footer';
 import './App.css';
 
+// Initialize theme from localStorage synchronously for fast loading
+const getInitialTheme = () => {
+  try {
+    const savedTheme = localStorage.getItem('themePreference');
+    if (savedTheme !== null) {
+      return savedTheme === 'dark';
+    }
+    // Fallback to system preference if no saved preference
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  } catch (error) {
+    console.warn('Failed to read theme from localStorage:', error);
+    return false; // Default to light mode
+  }
+};
+
 export default function App() {
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(getInitialTheme);
 
   useEffect(() => {
     document.body.className = darkMode ? 'dark-mode' : 'light-mode';
+    
+    // Save theme preference to localStorage
+    try {
+      localStorage.setItem('themePreference', darkMode ? 'dark' : 'light');
+    } catch (error) {
+      console.warn('Failed to save theme to localStorage:', error);
+    }
   }, [darkMode]);
 
   const theme = useMemo(() => createTheme({

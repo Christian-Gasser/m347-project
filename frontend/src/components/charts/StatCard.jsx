@@ -217,6 +217,13 @@ export const GradeInsightCard = ({ insights, delay = 0 }) => {
       transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
       opacity: isVisible ? 1 : 0,
       transition: 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+      '&:hover': {
+        border: `1px solid ${alpha('#3B82F6', 0.3)}`,
+        boxShadow: theme.palette.mode === 'dark'
+          ? '0 8px 32px rgba(59, 130, 246, 0.15)'
+          : '0 8px 32px rgba(59, 130, 246, 0.08)',
+        transition: 'all 0.3s ease',
+      },
     }}>
       {/* Animated background pattern */}
       <Box sx={{
