@@ -1,2 +1,3 @@
-.github/gradle/*
-.github/build/*
+.github/*
+!.github/workflows/
+!.github/workflows/**
