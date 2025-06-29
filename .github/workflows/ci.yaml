@@ -33,34 +33,38 @@ jobs:
 
       - name: 'API tests'
         run: |
-            SpaceId=$(curl --fail --show-error --request POST \
-              --url http://localhost:8080/api/spaces \
+            SpaceResponse=$(curl --fail --show-error --request POST \
+              --url "http://localhost:8080/api/spaces" \
               --header 'Content-Type: application/json' \
-              --data '{"name": "Sample Space"}' | jq -r '.id')
+              --data '{"name": "Sample Space"}')
+            SpaceId=$(echo "$SpaceResponse" | jq -r '.id')
             Space=$(curl --fail --show-error --request GET \
-            --url http://localhost:8080/api/spaces/$SpaceId \
+            --url "http://localhost:8080/api/spaces/$SpaceId" \
             --header 'Content-Type: application/json')
 
-            SemesterId=$(curl --fail --show-error --request POST \
-              --url http://localhost:8080/api/spaces/$SpaceId/semesters \
+            SemesterResponse=$(curl --fail --show-error --request POST \
+              --url "http://localhost:8080/api/spaces/$SpaceId/semesters" \
               --header 'Content-Type: application/json' \
-              --data '{"name": "Sample Semester"}' | jq -r '.id')
+              --data '{"name": "Sample Semester"}')
+            SemesterId=$(echo "$SemesterResponse" | jq -r '.id')
             Semester=$(curl --fail --show-error --request GET \
-            --url http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId \
+            --url "http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId" \
             --header 'Content-Type: application/json')
 
-            SubjectId=$(curl --fail --show-error --request POST \
-              --url http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId/subjects \
+            SubjectResponse=$(curl --fail --show-error --request POST \
+              --url "http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId/subjects" \
               --header 'Content-Type: application/json' \
-              --data '{"name": "Sample Subject"}' | jq -r '.id')
+              --data '{"name": "Sample Subject"}')
+            SubjectId=$(echo "$SubjectResponse" | jq -r '.id')
             Subject=$(curl --fail --show-error --request GET \
-            --url http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId/subjects/$SubjectId \
+            --url "http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId/subjects/$SubjectId" \
             --header 'Content-Type: application/json')
 
-            GradeId=$(curl --fail --show-error --request POST \
-              --url http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId/subjects/$SubjectId/grades \
+            GradeResponse=$(curl --fail --show-error --request POST \
+              --url "http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId/subjects/$SubjectId/grades" \
               --header 'Content-Type: application/json' \
-              --data '{"name": "Sample Grade", "value": 5.0}' | jq -r '.id')
+              --data '{"name": "Sample Grade", "value": 5.0}')
+            GradeId=$(echo "$GradeResponse" | jq -r '.id')
             Grade=$(curl --fail --show-error --request GET \
-            --url http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId/subjects/$SubjectId/grades/$GradeId \
+            --url "http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId/subjects/$SubjectId/grades/$GradeId" \
             --header 'Content-Type: application/json')
