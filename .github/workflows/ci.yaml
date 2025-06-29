@@ -1,13 +1,32 @@
 name: Docker Compose Action
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4.2.2
+
       - name: Run docker compose
         uses: hoverkraft-tech/compose-action@v2.0.1
         with:
           compose-file: "docker-compose.yaml"
+
+      - name: 'Wait until the database is healthy'
+        uses: raschmitt/wait-for-healthy-container/@master
+        with:
+          container-name: database
+          timeout: 30
+
+      - name: 'Wait until the frontend is healthy'
+        uses: raschmitt/wait-for-healthy-container/@master
+        with:
+          container-name: frontend
+          timeout: 60
+
+      - name: 'Wait until the backend is healthy'
+        uses: raschmitt/wait-for-healthy-container/@master
+        with:
+          container-name: backend
+          timeout: 60
