@@ -63,7 +63,7 @@ jobs:
             GradeResponse=$(curl --fail --show-error --request POST \
               --url "http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId/subjects/$SubjectId/grades" \
               --header 'Content-Type: application/json' \
-              --data '{"name": "Sample Grade", "value": 5.0}')
+              --data '{"name": "Sample Grade", "grade": 5.0, "gradeWeight": 1.0, "examDate": "2023-10-01T00:00:00Z"}')
             GradeId=$(echo "$GradeResponse" | jq -r '.id')
             Grade=$(curl --fail --show-error --request GET \
             --url "http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId/subjects/$SubjectId/grades/$GradeId" \
