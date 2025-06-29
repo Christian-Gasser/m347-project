@@ -33,34 +33,34 @@ jobs:
 
       - name: 'API tests'
         run: |
-            SpaceId=$(curl --fail --silent --request POST \
+            SpaceId=$(curl --fail --request POST \
               --url http://localhost:8080/api/spaces \
               --header 'Content-Type: application/json' \
               --data '{"name": "Sample Space"}' | jq -r '.id')
-            Space=$(curl --fail --silent --request GET \
+            Space=$(curl --fail --request GET \
             --url http://localhost:8080/api/spaces/$SpaceId \
             --header 'Content-Type: application/json')
 
-            SemesterId=$(curl --fail --silent --request POST \
+            SemesterId=$(curl --fail --request POST \
               --url http://localhost:8080/api/spaces/$SpaceId/semesters \
               --header 'Content-Type: application/json' \
               --data '{"name": "Sample Semester"}' | jq -r '.id')
-            Semester=$(curl --fail --silent --request GET \
+            Semester=$(curl --fail --request GET \
             --url http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId \
             --header 'Content-Type: application/json')
 
-            SubjectId=$(curl --fail --silent --request POST \
+            SubjectId=$(curl --fail --request POST \
               --url http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId/subjects \
               --header 'Content-Type: application/json' \
               --data '{"name": "Sample Subject"}' | jq -r '.id')
-            Subject=$(curl --fail --silent --request GET \
+            Subject=$(curl --fail --request GET \
             --url http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId/subjects/$SubjectId \
             --header 'Content-Type: application/json')
 
-            GradeId=$(curl --fail --silent --request POST \
+            GradeId=$(curl --fail --request POST \
               --url http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId/subjects/$SubjectId/grades \
               --header 'Content-Type: application/json' \
               --data '{"name": "Sample Grade", "value": 5.0}' | jq -r '.id')
-            Grade=$(curl --fail --silent --request GET \
+            Grade=$(curl --fail --request GET \
             --url http://localhost:8080/api/spaces/$SpaceId/semesters/$SemesterId/subjects/$SubjectId/grades/$GradeId \
             --header 'Content-Type: application/json')
