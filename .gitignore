@@ -1,3 +1,7 @@
+# Ignore everything in .github
 .github/*
+.github/**
+
+# EXCEPT workflows
 !.github/workflows/
 !.github/workflows/**
