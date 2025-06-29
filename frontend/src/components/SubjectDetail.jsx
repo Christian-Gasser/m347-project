@@ -16,7 +16,6 @@ import {
   Alert,
   Skeleton,
   Breadcrumbs,
-  Link,
   Chip,
   Table,
   TableBody,
@@ -24,10 +23,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   useTheme,
   Avatar,
   alpha,
+  Fade,
+  Grow,
+  Slide
 } from '@mui/material';
 import { motion, AnimatePresence, useInView } from 'framer-motion';
 import {
