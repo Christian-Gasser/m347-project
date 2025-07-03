@@ -232,12 +232,6 @@ docker-compose -f docker-compose.prod.yml up -d
 curl http://localhost:8080/actuator/health
 ```
 
-## 📊 Monitoring (Optional)
-
-If monitoring stack is enabled:
-- **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3000
-- **Dashboards**: Pre-configured metrics for application performance
 
 ## 🔒 Security
 
